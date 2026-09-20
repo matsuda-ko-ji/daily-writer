@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Daily Writer</title>
@@ -9,6 +9,10 @@
     <h1>Daily Writer</h1>
 
     <p>日報・挨拶文の生成ツール</p>
+
+    <h2>開始の挨拶</h2>
+
+    <p th:text="${message}"></p>
 
 </body>
 </html>
