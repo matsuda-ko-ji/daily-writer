@@ -5,7 +5,9 @@ import com.example.dailywriter.service.MessageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class HomeController {
@@ -17,15 +19,25 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String index(
-            @RequestParam(defaultValue = "START") MessageType type,
-            Model model) {
+    public String index(Model model) {
+
+        if (!model.containsAttribute("selectedType")) {
+            model.addAttribute("selectedType", MessageType.START);
+        }
+
+        return "index";
+    }
+
+    @PostMapping("/generate")
+    public String generate(
+            @RequestParam MessageType type,
+            RedirectAttributes redirectAttributes) {
 
         String message = messageService.generate(type);
 
-        model.addAttribute("message", message);
-        model.addAttribute("selectedType", type);
+        redirectAttributes.addFlashAttribute("message", message);
+        redirectAttributes.addFlashAttribute("selectedType", type);
 
-        return "index";
+        return "redirect:/";
     }
 }

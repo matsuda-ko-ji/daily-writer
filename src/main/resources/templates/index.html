@@ -10,7 +10,7 @@
 
     <p>日報・挨拶文の生成ツール</p>
 
-    <form action="/" method="get">
+    <form action="/generate" method="post">
 
         <label for="type">生成する文章</label>
 
@@ -35,9 +35,10 @@
 
     </form>
 
-    <h2>生成結果</h2>
-
-    <p th:text="${message}"></p>
+    <div th:if="${message != null}">
+        <h2>生成結果</h2>
+        <p th:text="${message}"></p>
+    </div>
 
 </body>
 </html>
