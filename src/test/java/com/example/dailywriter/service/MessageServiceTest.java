@@ -45,4 +45,52 @@ class MessageServiceTest {
                 actual
         );
     }
+
+    @Test
+    void generateReturnsMessageWhenReportContentIsEmpty() {
+
+        MessageService messageService = new MessageService();
+
+        String actual = messageService.generate(
+                MessageType.REPORT,
+                ""
+        );
+
+        assertEquals(
+                "今日やったことを入力してください。",
+                actual
+        );
+    }
+
+    @Test
+    void generateReturnsMessageWhenReportContentIsBlank() {
+
+        MessageService messageService = new MessageService();
+
+        String actual = messageService.generate(
+                MessageType.REPORT,
+                "   "
+        );
+
+        assertEquals(
+                "今日やったことを入力してください。",
+                actual
+        );
+    }
+
+    @Test
+    void generateReturnsMessageWhenReportContentIsNull() {
+
+        MessageService messageService = new MessageService();
+
+        String actual = messageService.generate(
+                MessageType.REPORT,
+                null
+        );
+
+        assertEquals(
+                "今日やったことを入力してください。",
+                actual
+        );
+    }
 }
