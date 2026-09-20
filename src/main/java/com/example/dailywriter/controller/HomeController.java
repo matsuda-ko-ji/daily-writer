@@ -1,5 +1,6 @@
 package com.example.dailywriter.controller;
 
+import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.service.MessageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +17,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String index(Model model) {
-        String message = messageService.generateStartMessage();
+        String message = messageService.generate(MessageType.START);
 
         model.addAttribute("message", message);
 
