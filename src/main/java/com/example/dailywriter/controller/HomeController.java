@@ -5,6 +5,7 @@ import com.example.dailywriter.service.MessageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
@@ -16,10 +17,14 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String index(Model model) {
-        String message = messageService.generate(MessageType.START);
+    public String index(
+            @RequestParam(defaultValue = "START") MessageType type,
+            Model model) {
+
+        String message = messageService.generate(type);
 
         model.addAttribute("message", message);
+        model.addAttribute("selectedType", type);
 
         return "index";
     }

@@ -10,7 +10,32 @@
 
     <p>日報・挨拶文の生成ツール</p>
 
-    <h2>開始の挨拶</h2>
+    <form action="/" method="get">
+
+        <label for="type">生成する文章</label>
+
+        <select id="type" name="type">
+            <option value="START"
+                    th:selected="${selectedType.name() == 'START'}">
+                開始の挨拶
+            </option>
+
+            <option value="END"
+                    th:selected="${selectedType.name() == 'END'}">
+                終了の挨拶
+            </option>
+
+            <option value="REPORT"
+                    th:selected="${selectedType.name() == 'REPORT'}">
+                日報の所感
+            </option>
+        </select>
+
+        <button type="submit">文章を生成する</button>
+
+    </form>
+
+    <h2>生成結果</h2>
 
     <p th:text="${message}"></p>
 
