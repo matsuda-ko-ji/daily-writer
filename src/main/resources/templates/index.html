@@ -31,6 +31,15 @@
             </option>
         </select>
 
+        <div>
+            <label for="workContent">今日やったこと</label>
+            <input
+                    type="text"
+                    id="workContent"
+                    name="workContent"
+                    th:value="${workContent}">
+        </div>
+
         <button type="submit">文章を生成する</button>
 
     </form>

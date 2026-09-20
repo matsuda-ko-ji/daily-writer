@@ -31,12 +31,14 @@ public class HomeController {
     @PostMapping("/generate")
     public String generate(
             @RequestParam MessageType type,
+            @RequestParam String workContent,
             RedirectAttributes redirectAttributes) {
 
-        String message = messageService.generate(type);
+        String message = messageService.generate(type, workContent);
 
         redirectAttributes.addFlashAttribute("message", message);
         redirectAttributes.addFlashAttribute("selectedType", type);
+        redirectAttributes.addFlashAttribute("workContent", workContent);
 
         return "redirect:/";
     }

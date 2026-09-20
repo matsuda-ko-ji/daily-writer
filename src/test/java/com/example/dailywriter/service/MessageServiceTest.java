@@ -12,7 +12,7 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(MessageType.START);
+        String actual = messageService.generate(MessageType.START, "");
 
         assertEquals(
                 "おはようございます。本日もよろしくお願いします。",
@@ -25,7 +25,7 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(MessageType.END);
+        String actual = messageService.generate(MessageType.END, "");
 
         assertEquals(
                 "本日の業務を終了します。お疲れさまでした。",
@@ -38,10 +38,10 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(MessageType.REPORT);
+        String actual = messageService.generate(MessageType.REPORT, "本番リリース手順書を修正した");
 
         assertEquals(
-                "本日の業務を振り返り、学んだことを次回に活かします。",
+                "本日は本番リリース手順書を修正した。今回の経験を今後の業務に活かしていきます。",
                 actual
         );
     }
