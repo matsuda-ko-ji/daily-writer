@@ -32,6 +32,29 @@
         </select>
 
         <div>
+            <label for="tone">文章のトーン</label>
+
+            <select id="tone" name="tone">
+
+                <option value="NORMAL"
+                        th:selected="${selectedTone == 'NORMAL'}">
+                    標準
+                </option>
+
+                <option value="POLITE"
+                        th:selected="${selectedTone == 'POLITE'}">
+                    丁寧
+                </option>
+
+                <option value="CONCISE"
+                        th:selected="${selectedTone == 'CONCISE'}">
+                    簡潔
+                </option>
+
+            </select>
+        </div>
+
+        <div>
             <label for="workContent">今日やったこと</label>
             <input
                     type="text"
