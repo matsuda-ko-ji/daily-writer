@@ -38,6 +38,10 @@
                     id="workContent"
                     name="workContent"
                     th:value="${workContent}">
+            
+            <p th:if="${errorMessage != null}"
+               th:text="${errorMessage}">
+            </p>
         </div>
 
         <button type="submit">文章を生成する</button>

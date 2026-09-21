@@ -1,12 +1,13 @@
 package com.example.dailywriter.controller;
 
+import com.example.dailywriter.form.MessageForm;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.service.MessageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -30,15 +31,48 @@ public class HomeController {
 
     @PostMapping("/generate")
     public String generate(
-            @RequestParam MessageType type,
-            @RequestParam String workContent,
+            @ModelAttribute MessageForm form,
             RedirectAttributes redirectAttributes) {
 
-        String message = messageService.generate(type, workContent);
+        if (form.isReportContentEmpty()) {
 
-        redirectAttributes.addFlashAttribute("message", message);
-        redirectAttributes.addFlashAttribute("selectedType", type);
-        redirectAttributes.addFlashAttribute("workContent", workContent);
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "今日やったことを入力してください。"
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "selectedType",
+                    form.getType()
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "workContent",
+                    form.getWorkContent()
+            );
+
+            return "redirect:/";
+        }
+
+        String message = messageService.generate(
+                form.getType(),
+                form.getWorkContent()
+        );
+
+        redirectAttributes.addFlashAttribute(
+                "message",
+                message
+        );
+
+        redirectAttributes.addFlashAttribute(
+                "selectedType",
+                form.getType()
+        );
+
+        redirectAttributes.addFlashAttribute(
+                "workContent",
+                form.getWorkContent()
+        );
 
         return "redirect:/";
     }
