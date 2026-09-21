@@ -8,4 +8,11 @@ public record MessageRequest(
         String workContent,
         Tone tone
 ) {
+
+    public MessageRequest {
+
+        if (workContent != null) {
+            workContent = workContent.strip();
+        }
+    }
 }
