@@ -41,15 +41,7 @@ public class HomeController {
                     "今日やったことを入力してください。"
             );
 
-            redirectAttributes.addFlashAttribute(
-                    "selectedType",
-                    form.getType()
-            );
-
-            redirectAttributes.addFlashAttribute(
-                    "workContent",
-                    form.getWorkContent()
-            );
+            addFormAttributes(redirectAttributes, form);
 
             return "redirect:/";
         }
@@ -64,6 +56,15 @@ public class HomeController {
                 message
         );
 
+        addFormAttributes(redirectAttributes, form);
+
+        return "redirect:/";
+    }
+
+    private void addFormAttributes(
+        RedirectAttributes redirectAttributes,
+        MessageForm form) {
+
         redirectAttributes.addFlashAttribute(
                 "selectedType",
                 form.getType()
@@ -73,7 +74,5 @@ public class HomeController {
                 "workContent",
                 form.getWorkContent()
         );
-
-        return "redirect:/";
     }
 }
