@@ -40,30 +40,28 @@ public class HomeController {
             @ModelAttribute MessageForm form,
             RedirectAttributes redirectAttributes) {
 
-        if (form.isReportContentEmpty()) {
+        try {
+
+            MessageRequest request = new MessageRequest(
+                    form.getType(),
+                    form.getWorkContent(),
+                    form.getTone()
+            );
+
+            String message = messageService.generate(request);
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    message
+            );
+
+        } catch (IllegalArgumentException e) {
 
             redirectAttributes.addFlashAttribute(
                     "errorMessage",
-                    "今日やったことを入力してください。"
+                    e.getMessage()
             );
-
-            addFormAttributes(redirectAttributes, form);
-
-            return "redirect:/";
         }
-
-        MessageRequest request = new MessageRequest(
-                form.getType(),
-                form.getWorkContent(),
-                form.getTone()
-        );
-
-        String message = messageService.generate(request);
-
-        redirectAttributes.addFlashAttribute(
-                "message",
-                message
-        );
 
         addFormAttributes(redirectAttributes, form);
 

@@ -27,12 +27,6 @@ public class MessageForm {
         this.workContent = workContent;
     }
 
-    public boolean isReportContentEmpty() {
-
-        return type == MessageType.REPORT
-                && (workContent == null || workContent.isBlank());
-    }
-
     public Tone getTone() {
         return tone;
     }

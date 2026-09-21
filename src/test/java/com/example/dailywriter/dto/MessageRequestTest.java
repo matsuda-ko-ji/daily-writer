@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MessageRequestTest {
 
@@ -66,16 +67,71 @@ class MessageRequestTest {
         );
     }
 
-    // nullでも例外が発生しない
     @Test
-    void constructorAcceptsNullWorkContent() {
+    void constructorAllowsNullEndContent() {
 
         MessageRequest request = new MessageRequest(
-                MessageType.REPORT,
+                MessageType.END,
                 null,
                 Tone.NORMAL
         );
 
         assertNull(request.workContent());
+    }
+
+    @Test
+    void constructorRejectsEmptyReportContent() {
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageRequest(
+                        MessageType.REPORT,
+                        "",
+                        Tone.NORMAL
+                )
+        );
+
+        assertEquals(
+                "今日やったことを入力してください。",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void constructorRejectsBlankReportContent() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageRequest(
+                        MessageType.REPORT,
+                        "   ",
+                        Tone.NORMAL
+                )
+        );
+    }
+
+    @Test
+    void constructorRejectsNullReportContent() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageRequest(
+                        MessageType.REPORT,
+                        null,
+                        Tone.NORMAL
+                )
+        );
+    }
+
+    @Test
+    void constructorAllowsEmptyStartContent() {
+
+        MessageRequest request = new MessageRequest(
+                MessageType.START,
+                "",
+                Tone.NORMAL
+        );
+
+        assertEquals("", request.workContent());
     }
 }

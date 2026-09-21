@@ -14,5 +14,13 @@ public record MessageRequest(
         if (workContent != null) {
             workContent = workContent.strip();
         }
+
+        if (type == MessageType.REPORT
+                && (workContent == null || workContent.isBlank())) {
+
+            throw new IllegalArgumentException(
+                    "今日やったことを入力してください。"
+            );
+        }
     }
 }

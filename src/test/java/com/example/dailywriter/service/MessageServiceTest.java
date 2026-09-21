@@ -68,60 +68,22 @@ class MessageServiceTest {
     }
 
     @Test
-    void generateReturnsMessageWhenReportContentIsEmpty() {
+    void generateReturnsPoliteReportMessage() {
 
         MessageService messageService = new MessageService();
 
         MessageRequest request = new MessageRequest(
                 MessageType.REPORT,
-                "",
-                Tone.NORMAL
-        );
-
-String actual = messageService.generate(request);
-
-        assertEquals(
-                "今日やったことを入力してください。",
-                actual
-        );
-    }
-
-    @Test
-    void generateReturnsMessageWhenReportContentIsBlank() {
-
-        MessageService messageService = new MessageService();
-
-        MessageRequest request = new MessageRequest(
-                MessageType.REPORT,
-                "   ",
-                Tone.NORMAL
+                "Javaを学習した",
+                Tone.POLITE
         );
 
         String actual = messageService.generate(request);
 
         assertEquals(
-                "今日やったことを入力してください。",
+                "本日はJavaを学習した。今回学んだ内容を今後の業務に活かしてまいります。",
                 actual
         );
-    }
-
-    @Test
-    void generateReturnsPoliteReportMessage() {
-
-    MessageService messageService = new MessageService();
-
-    MessageRequest request = new MessageRequest(
-        MessageType.REPORT,
-        "Javaを学習した",
-        Tone.POLITE
-    );
-
-    String actual = messageService.generate(request);
-
-    assertEquals(
-            "本日はJavaを学習した。今回学んだ内容を今後の業務に活かしてまいります。",
-            actual
-    );
     }
 
     @Test
@@ -130,9 +92,9 @@ String actual = messageService.generate(request);
         MessageService messageService = new MessageService();
 
         MessageRequest request = new MessageRequest(
-            MessageType.REPORT,
-            "Javaを学習した",
-            Tone.CONCISE
+                MessageType.REPORT,
+                "Javaを学習した",
+                Tone.CONCISE
         );
 
         String actual = messageService.generate(request);
@@ -149,9 +111,9 @@ String actual = messageService.generate(request);
         MessageService messageService = new MessageService();
 
         MessageRequest request = new MessageRequest(
-            MessageType.REPORT,
-            "Javaを学習した",
-            null
+                MessageType.REPORT,
+                "Javaを学習した",
+                null
         );
 
         String actual = messageService.generate(request);
