@@ -1,8 +1,11 @@
 package com.example.dailywriter.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,11 +17,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.mockito.ArgumentCaptor;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.model.MessageType;
+import com.example.dailywriter.model.Tone;
 import com.example.dailywriter.service.MessageService;
 
 class HomeControllerMvcTest {
@@ -86,6 +92,9 @@ class HomeControllerMvcTest {
                 "selectedTone",
                 "NORMAL"
         ));
+
+        verify(messageService, never())
+        .generate(any(MessageRequest.class));
     }
 
     @Test
@@ -105,5 +114,40 @@ class HomeControllerMvcTest {
                 get("/generate")
         )
         .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    void postGeneratePassesCorrectRequestToService() throws Exception {
+
+        // ① Serviceが返す文章を設定する
+        when(messageService.generate(any(MessageRequest.class)))
+                .thenReturn("テスト用の文章");
+
+        // ② HTTPリクエストを送信する
+        mockMvc.perform(
+                post("/generate")
+                        .param("type", "REPORT")
+                        .param("workContent", "  Javaを学習した  ")
+                        .param("tone", "POLITE")
+        )
+        .andExpect(status().isFound())
+        .andExpect(redirectedUrl("/"));
+
+        // ③ 引数を取得するためのCaptorを作成する
+        ArgumentCaptor<MessageRequest> captor =
+                ArgumentCaptor.forClass(MessageRequest.class);
+
+        // ④ Serviceに渡された引数を取得する
+        verify(messageService).generate(captor.capture());
+
+        // ⑤ 取得した引数を取り出す
+        MessageRequest request = captor.getValue();
+
+        // ⑥ 引数の中身を確認する
+        assertEquals(MessageType.REPORT, request.type());
+
+        assertEquals("Javaを学習した", request.workContent());
+
+        assertEquals(Tone.POLITE, request.tone());
     }
 }
