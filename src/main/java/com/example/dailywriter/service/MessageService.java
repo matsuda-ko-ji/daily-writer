@@ -1,5 +1,6 @@
 package com.example.dailywriter.service;
 
+import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
 import org.springframework.stereotype.Service;
@@ -7,11 +8,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class MessageService {
 
-    public String generate(
-            MessageType type,
-            String workContent,
-            Tone tone) {
-        
+    public String generate(MessageRequest request) {
+
+        MessageType type = request.type();
+        String workContent = request.workContent();
+        Tone tone = request.tone();
+
         if (tone == null) {
             tone = Tone.NORMAL;
         }

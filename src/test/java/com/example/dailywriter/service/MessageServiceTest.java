@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
 
@@ -14,11 +15,13 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
+        MessageRequest request = new MessageRequest(
                 MessageType.START,
                 "",
                 Tone.NORMAL
         );
+
+        String actual = messageService.generate(request);
 
         assertEquals(
                 "おはようございます。本日もよろしくお願いします。",
@@ -31,11 +34,13 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
+        MessageRequest request = new MessageRequest(
                 MessageType.END,
                 "",
                 Tone.NORMAL
         );
+
+        String actual = messageService.generate(request);
 
         assertEquals(
                 "本日の業務を終了します。お疲れさまでした。",
@@ -48,14 +53,16 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
+        MessageRequest request = new MessageRequest(
                 MessageType.REPORT,
-                "本番リリース手順書を修正した",
+                "Javaを学習した",
                 Tone.NORMAL
         );
 
+        String actual = messageService.generate(request);
+
         assertEquals(
-                "本日は本番リリース手順書を修正した。今回の経験を今後の業務に活かしていきます。",
+                "本日はJavaを学習した。今回の経験を今後の業務に活かしていきます。",
                 actual
         );
     }
@@ -65,11 +72,13 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
+        MessageRequest request = new MessageRequest(
                 MessageType.REPORT,
                 "",
                 Tone.NORMAL
         );
+
+String actual = messageService.generate(request);
 
         assertEquals(
                 "今日やったことを入力してください。",
@@ -82,11 +91,13 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
+        MessageRequest request = new MessageRequest(
                 MessageType.REPORT,
                 "   ",
                 Tone.NORMAL
         );
+
+        String actual = messageService.generate(request);
 
         assertEquals(
                 "今日やったことを入力してください。",
@@ -99,11 +110,13 @@ class MessageServiceTest {
 
     MessageService messageService = new MessageService();
 
-    String actual = messageService.generate(
-            MessageType.REPORT,
-            "Javaを学習した",
-            Tone.POLITE
+    MessageRequest request = new MessageRequest(
+        MessageType.REPORT,
+        "Javaを学習した",
+        Tone.POLITE
     );
+
+    String actual = messageService.generate(request);
 
     assertEquals(
             "本日はJavaを学習した。今回学んだ内容を今後の業務に活かしてまいります。",
@@ -116,11 +129,13 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
-                MessageType.REPORT,
-                "Javaを学習した",
-                Tone.CONCISE
+        MessageRequest request = new MessageRequest(
+            MessageType.REPORT,
+            "Javaを学習した",
+            Tone.CONCISE
         );
+
+        String actual = messageService.generate(request);
 
         assertEquals(
                 "Javaを学習した。",
@@ -133,11 +148,13 @@ class MessageServiceTest {
 
         MessageService messageService = new MessageService();
 
-        String actual = messageService.generate(
-                MessageType.REPORT,
-                "Javaを学習した",
-                null
+        MessageRequest request = new MessageRequest(
+            MessageType.REPORT,
+            "Javaを学習した",
+            null
         );
+
+        String actual = messageService.generate(request);
 
         assertEquals(
                 "本日はJavaを学習した。今回の経験を今後の業務に活かしていきます。",

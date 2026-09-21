@@ -1,5 +1,6 @@
 package com.example.dailywriter.controller;
 
+import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.form.MessageForm;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
@@ -51,11 +52,13 @@ public class HomeController {
             return "redirect:/";
         }
 
-        String message = messageService.generate(
+        MessageRequest request = new MessageRequest(
                 form.getType(),
                 form.getWorkContent(),
                 form.getTone()
         );
+
+        String message = messageService.generate(request);
 
         redirectAttributes.addFlashAttribute(
                 "message",
