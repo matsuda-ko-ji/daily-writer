@@ -1,6 +1,7 @@
 package com.example.dailywriter.controller;
 
 import com.example.dailywriter.dto.MessageRequest;
+import com.example.dailywriter.exception.InvalidMessageRequestException;
 import com.example.dailywriter.form.MessageForm;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
@@ -55,7 +56,7 @@ public class HomeController {
                     message
             );
 
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidMessageRequestException e) {
 
             redirectAttributes.addFlashAttribute(
                     "errorMessage",

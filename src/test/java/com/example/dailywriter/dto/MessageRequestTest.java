@@ -1,5 +1,6 @@
 package com.example.dailywriter.dto;
 
+import com.example.dailywriter.exception.InvalidMessageRequestException;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
 import org.junit.jupiter.api.Test;
@@ -82,8 +83,8 @@ class MessageRequestTest {
     @Test
     void constructorRejectsEmptyReportContent() {
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        InvalidMessageRequestException exception = assertThrows(
+                InvalidMessageRequestException.class,
                 () -> new MessageRequest(
                         MessageType.REPORT,
                         "",
@@ -101,7 +102,7 @@ class MessageRequestTest {
     void constructorRejectsBlankReportContent() {
 
         assertThrows(
-                IllegalArgumentException.class,
+                InvalidMessageRequestException.class,
                 () -> new MessageRequest(
                         MessageType.REPORT,
                         "   ",
@@ -114,7 +115,7 @@ class MessageRequestTest {
     void constructorRejectsNullReportContent() {
 
         assertThrows(
-                IllegalArgumentException.class,
+                InvalidMessageRequestException.class,
                 () -> new MessageRequest(
                         MessageType.REPORT,
                         null,

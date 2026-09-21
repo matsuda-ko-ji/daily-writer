@@ -1,5 +1,6 @@
 package com.example.dailywriter.dto;
 
+import com.example.dailywriter.exception.InvalidMessageRequestException;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
 
@@ -18,7 +19,7 @@ public record MessageRequest(
         if (type == MessageType.REPORT
                 && (workContent == null || workContent.isBlank())) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidMessageRequestException(
                     "今日やったことを入力してください。"
             );
         }
