@@ -53,7 +53,8 @@ public class HomeController {
 
         String message = messageService.generate(
                 form.getType(),
-                form.getWorkContent()
+                form.getWorkContent(),
+                form.getTone()
         );
 
         redirectAttributes.addFlashAttribute(
