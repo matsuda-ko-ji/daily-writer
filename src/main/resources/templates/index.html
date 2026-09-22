@@ -67,6 +67,29 @@
             </p>
         </div>
 
+        <div>
+            <label for="generationMethod">生成方法</label>
+
+            <select
+                id="generationMethod"
+                name="generationMethod"
+            >
+                <option
+                    value="template"
+                    th:selected="${selectedGenerationMethod == 'template'}"
+                >
+                    定型文で生成
+                </option>
+
+                <option
+                    value="ai"
+                    th:selected="${selectedGenerationMethod == 'ai'}"
+                >
+                    AIで生成
+                </option>
+            </select>
+        </div>
+
         <button type="submit">文章を生成する</button>
 
     </form>

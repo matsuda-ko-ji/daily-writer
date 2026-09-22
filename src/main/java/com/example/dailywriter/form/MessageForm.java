@@ -11,6 +11,8 @@ public class MessageForm {
 
     private Tone tone;
 
+    private String generationMethod = "template";
+
     public MessageType getType() {
         return type;
     }
@@ -33,5 +35,13 @@ public class MessageForm {
 
     public void setTone(Tone tone) {
         this.tone = tone;
+    }
+
+    public String getGenerationMethod() {
+        return generationMethod;
+    }
+
+    public void setGenerationMethod(String generationMethod) {
+        this.generationMethod = generationMethod;
     }
 }

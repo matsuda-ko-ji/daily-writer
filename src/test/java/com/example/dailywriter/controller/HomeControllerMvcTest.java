@@ -30,6 +30,7 @@ import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.News;
 import com.example.dailywriter.model.Tone;
+import com.example.dailywriter.service.AiMessageService;
 import com.example.dailywriter.service.MessageService;
 import com.example.dailywriter.service.NewsService;
 
@@ -42,15 +43,23 @@ class HomeControllerMvcTest {
     @BeforeEach
     void setUp() {
 
-        messageService = mock(MessageService.class);
-        newsService = mock(NewsService.class);
+    messageService = mock(MessageService.class);
 
-        HomeController controller =
-                new HomeController(messageService, newsService);
+    newsService = mock(NewsService.class);
 
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .build();
+    AiMessageService aiMessageService =
+            mock(AiMessageService.class);
+
+    HomeController controller =
+            new HomeController(
+                    messageService,
+                    newsService,
+                    aiMessageService
+            );
+
+    mockMvc = MockMvcBuilders
+            .standaloneSetup(controller)
+            .build();
     }
 
     @Test
