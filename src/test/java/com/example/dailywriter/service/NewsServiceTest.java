@@ -205,4 +205,102 @@ class NewsServiceTest {
 
         return new NewsService(builder);
     }
+
+    /**
+     * ニュースが6件以上ある場合、先頭5件のみ取得すること
+     */
+    @Test
+    void getLatestNewsReturnsAtMostFiveNews() {
+
+    String xml = """
+            <rss version="2.0">
+                    <channel>
+                    <item><title>ニュース1</title></item>
+                    <item><title>ニュース2</title></item>
+                    <item><title>ニュース3</title></item>
+                    <item><title>ニュース4</title></item>
+                    <item><title>ニュース5</title></item>
+                    <item><title>ニュース6</title></item>
+                    </channel>
+            </rss>
+            """;
+
+    NewsService newsService = createNewsService(xml);
+
+    List<News> newsList = newsService.getLatestNews();
+
+    assertEquals(5, newsList.size());
+
+    assertEquals("ニュース1", newsList.get(0).title());
+    assertEquals("ニュース5", newsList.get(4).title());
+    }
+
+    /**
+     * ニュースが0件の場合、空のリストを返すこと
+     */
+    @Test
+    void getLatestNewsReturnsEmptyListWhenNoItems() {
+
+        String xml = """
+                <rss>
+                    <channel></channel>
+                </rss>
+                """;
+
+        NewsService newsService = createNewsService(xml);
+
+        List<News> newsList = newsService.getLatestNews();
+
+        assertEquals(0, newsList.size());
+    }
+
+    /**
+     * ニュースが3件の場合、3件すべて取得すること
+     */
+    @Test
+    void getLatestNewsReturnsAllThreeNews() {
+
+        String xml = """
+                <rss>
+                    <channel>
+                        <item><title>ニュース1</title></item>
+                        <item><title>ニュース2</title></item>
+                        <item><title>ニュース3</title></item>
+                    </channel>
+                </rss>
+                """;
+
+        NewsService newsService = createNewsService(xml);
+
+        List<News> newsList = newsService.getLatestNews();
+
+        assertEquals(3, newsList.size());
+        assertEquals("ニュース3", newsList.get(2).title());
+    }
+
+    /**
+     * ニュースがちょうど5件の場合、5件すべて取得すること
+     */
+    @Test
+    void getLatestNewsReturnsExactlyFiveNews() {
+
+        String xml = """
+                <rss>
+                    <channel>
+                        <item><title>ニュース1</title></item>
+                        <item><title>ニュース2</title></item>
+                        <item><title>ニュース3</title></item>
+                        <item><title>ニュース4</title></item>
+                        <item><title>ニュース5</title></item>
+                    </channel>
+                </rss>
+                """;
+
+        NewsService newsService = createNewsService(xml);
+
+        List<News> newsList = newsService.getLatestNews();
+
+        assertEquals(5, newsList.size());
+        assertEquals("ニュース5", newsList.get(4).title());
+    }
 }

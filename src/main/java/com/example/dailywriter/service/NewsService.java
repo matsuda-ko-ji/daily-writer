@@ -23,6 +23,8 @@ public class NewsService {
     private static final String NEWS_URL =
             "https://hnrss.org/frontpage";
 
+    private static final int MAX_NEWS_COUNT = 5;
+
     private final RestClient restClient;
 
     public NewsService(RestClient.Builder restClientBuilder) {
@@ -89,7 +91,9 @@ public class NewsService {
 
             List<News> newsList = new ArrayList<>();
 
-            for (int i = 0; i < items.getLength(); i++) {
+            for (int i = 0;
+                    i < Math.min(items.getLength(), MAX_NEWS_COUNT);
+                    i++) {
 
                 Element item = (Element) items.item(i);
 
