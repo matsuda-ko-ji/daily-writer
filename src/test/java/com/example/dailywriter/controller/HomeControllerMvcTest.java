@@ -24,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.client.RestClientException;
 
 import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.model.MessageType;
@@ -176,5 +177,62 @@ class HomeControllerMvcTest {
             .andExpect(status().isOk())
             .andExpect(view().name("index"))
             .andExpect(model().attribute("newsList", newsList));
+    }
+
+    @Test
+    void getIndexDisplaysPageWhenNewsFetchFails() throws Exception {
+
+    // ニュース取得失敗を再現
+    when(newsService.getLatestNews())
+            .thenThrow(
+                    new RestClientException("通信エラー")
+            );
+
+    // トップ画面へアクセス
+    mockMvc.perform(get("/"))
+
+            // 画面は正常に表示される
+            .andExpect(status().isOk())
+
+            // index.htmlを表示する
+            .andExpect(view().name("index"))
+
+            // ニュース一覧は空になる
+            .andExpect(
+                    model().attribute(
+                            "newsList",
+                            List.of()
+                    )
+            )
+
+            // エラーメッセージが設定される
+            .andExpect(
+                    model().attribute(
+                            "newsError",
+                            "ニュースを取得できませんでした。時間をおいて再度お試しください。"
+                    )
+            );
+    }
+
+    @Test
+    void getIndexDisplaysPageWhenNewsParsingFails() throws Exception {
+
+        when(newsService.getLatestNews())
+                .thenThrow(
+                        new IllegalStateException("XML解析エラー")
+                );
+
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"))
+                .andExpect(
+                        model().attribute(
+                                "newsList",
+                                List.of()
+                        )
+                )
+                .andExpect(
+                        model().attributeExists("newsError")
+                );
     }
 }

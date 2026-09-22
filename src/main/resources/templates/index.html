@@ -81,11 +81,19 @@
     <section>
         <h2>今日のITニュース</h2>
 
-        <p th:if="${#lists.isEmpty(newsList)}">
+        <!-- ニュース取得失敗時 -->
+        <p th:if="${newsError != null}"
+        th:text="${newsError}">
+            ニュース取得エラー
+        </p>
+
+        <!-- ニュースが0件の場合 -->
+        <p th:if="${newsError == null and #lists.isEmpty(newsList)}">
             現在、ニュースはありません。
         </p>
 
-        <ul th:unless="${#lists.isEmpty(newsList)}">
+        <!-- ニュースが取得できた場合 -->
+        <ul th:if="${newsError == null and !#lists.isEmpty(newsList)}">
 
             <li th:each="news : ${newsList}">
 

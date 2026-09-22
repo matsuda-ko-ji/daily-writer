@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -43,9 +44,21 @@ public class HomeController {
                 Tone.NORMAL
         );
 
-        List<News> newsList = newsService.getLatestNews();
+        try {
 
-        model.addAttribute("newsList", newsList);
+            List<News> newsList = newsService.getLatestNews();
+
+            model.addAttribute("newsList", newsList);
+
+        } catch (RestClientException | IllegalStateException e) {
+
+            model.addAttribute("newsList", List.of());
+
+            model.addAttribute(
+                    "newsError",
+                    "ニュースを取得できませんでした。時間をおいて再度お試しください。"
+            );
+        }
 
         return "index";
     }
