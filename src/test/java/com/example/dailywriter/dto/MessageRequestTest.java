@@ -150,4 +150,49 @@ class MessageRequestTest {
                 request.workContent()
         );
     }
+
+    @Test
+    void constructorAcceptsSingleCharacterReportContent() {
+
+        MessageRequest request = new MessageRequest(
+                MessageType.REPORT,
+                " A ",
+                Tone.NORMAL
+        );
+
+        assertEquals(
+                "A",
+                request.workContent()
+        );
+    }
+
+    @Test
+    void constructorAcceptsEmptyWorkContentForStart() {
+
+        MessageRequest request = new MessageRequest(
+                MessageType.START,
+                "",
+                Tone.NORMAL
+        );
+
+        assertEquals(
+                "",
+                request.workContent()
+        );
+    }
+
+    @Test
+    void constructorAcceptsNullWorkContentForEnd() {
+
+        MessageRequest request = new MessageRequest(
+                MessageType.END,
+                null,
+                Tone.NORMAL
+        );
+
+        assertEquals(
+                null,
+                request.workContent()
+        );
+    }
 }
