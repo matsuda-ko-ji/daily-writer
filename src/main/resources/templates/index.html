@@ -37,17 +37,17 @@
             <select id="tone" name="tone">
 
                 <option value="NORMAL"
-                        th:selected="${selectedTone == 'NORMAL'}">
+                        th:selected="${selectedTone.name() == 'NORMAL'}">
                     標準
                 </option>
 
                 <option value="POLITE"
-                        th:selected="${selectedTone == 'POLITE'}">
+                        th:selected="${selectedTone.name() == 'POLITE'}">
                     丁寧
                 </option>
 
                 <option value="CONCISE"
-                        th:selected="${selectedTone == 'CONCISE'}">
+                        th:selected="${selectedTone.name() == 'CONCISE'}">
                     簡潔
                 </option>
 

@@ -8,11 +8,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;      
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
 
 @Service
@@ -29,18 +31,28 @@ public class NewsService {
 
     public List<News> getLatestNews() {
 
-        String xml = restClient.get()
-                .uri(NEWS_URL)
-                .retrieve()
-                .body(String.class);
+        try {
 
-        if (xml == null || xml.isBlank()) {
-            throw new IllegalStateException(
-                    "ニュースの取得結果が空です。"
+            String xml = restClient.get()
+                    .uri(NEWS_URL)
+                    .retrieve()
+                    .body(String.class);
+
+            if (xml == null || xml.isBlank()) {
+                throw new NewsFetchException(
+                        "ニュースの取得結果が空です。"
+                );
+            }
+
+            return parseNews(xml);
+
+        } catch (RestClientException e) {
+
+            throw new NewsFetchException(
+                    "ニュースのHTTP通信に失敗しました。",
+                    e
             );
         }
-
-        return parseNews(xml);
     }
 
     private List<News> parseNews(String xml) {
@@ -94,7 +106,7 @@ public class NewsService {
 
         } catch (Exception e) {
 
-            throw new IllegalStateException(
+            throw new NewsFetchException(
                     "ニュースXMLの解析に失敗しました。",
                     e
             );

@@ -24,9 +24,9 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.client.RestClientException;
 
 import com.example.dailywriter.dto.MessageRequest;
+import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.News;
 import com.example.dailywriter.model.Tone;
@@ -98,7 +98,7 @@ class HomeControllerMvcTest {
         ))
         .andExpect(flash().attribute(
                 "selectedTone",
-                "NORMAL"
+                Tone.NORMAL
         ));
 
         verify(messageService, never())
@@ -185,7 +185,7 @@ class HomeControllerMvcTest {
     // ニュース取得失敗を再現
     when(newsService.getLatestNews())
             .thenThrow(
-                    new RestClientException("通信エラー")
+                    new NewsFetchException("通信エラー")
             );
 
     // トップ画面へアクセス
@@ -219,7 +219,7 @@ class HomeControllerMvcTest {
 
         when(newsService.getLatestNews())
                 .thenThrow(
-                        new IllegalStateException("XML解析エラー")
+                        new NewsFetchException("XML解析エラー")
                 );
 
         mockMvc.perform(get("/"))

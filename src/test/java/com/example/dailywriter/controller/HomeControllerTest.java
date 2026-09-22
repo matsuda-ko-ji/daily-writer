@@ -115,7 +115,7 @@ class HomeControllerTest {
         );
 
         assertEquals(
-                Tone.NORMAL.name(),
+                Tone.NORMAL,
                 redirectAttributes.getFlashAttributes().get("selectedTone")
         );
     }
