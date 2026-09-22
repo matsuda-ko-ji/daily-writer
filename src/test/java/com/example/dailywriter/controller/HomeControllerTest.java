@@ -16,6 +16,7 @@ import com.example.dailywriter.form.MessageForm;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
 import com.example.dailywriter.service.MessageService;
+import com.example.dailywriter.service.NewsService;
 
 class HomeControllerTest {
 
@@ -26,7 +27,9 @@ class HomeControllerTest {
         MessageService messageService = mock(MessageService.class);
 
         // ② Controllerを作成
-        HomeController controller = new HomeController(messageService);
+        NewsService newsService = mock(NewsService.class);
+
+        HomeController controller = new HomeController(messageService, newsService);
 
         // ③ フォームの入力値を設定
         MessageForm form = new MessageForm();
@@ -70,7 +73,9 @@ class HomeControllerTest {
 
         MessageService messageService = mock(MessageService.class);
 
-        HomeController controller = new HomeController(messageService);
+        NewsService newsService = mock(NewsService.class);
+
+        HomeController controller = new HomeController(messageService, newsService);
 
         MessageForm form = new MessageForm();
 

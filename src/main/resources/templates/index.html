@@ -76,5 +76,33 @@
         <p th:text="${message}"></p>
     </div>
 
+    <hr>
+
+    <section>
+        <h2>今日のITニュース</h2>
+
+        <p th:if="${#lists.isEmpty(newsList)}">
+            現在、ニュースはありません。
+        </p>
+
+        <ul th:unless="${#lists.isEmpty(newsList)}">
+
+            <li th:each="news : ${newsList}">
+
+                <h3 th:text="${news.title}">
+                    ニュースタイトル
+                </h3>
+
+                <a th:href="${news.url}"
+                target="_blank"
+                rel="noopener noreferrer">
+                    記事を読む
+                </a>
+
+            </li>
+
+        </ul>
+    </section>
+
 </body>
 </html>

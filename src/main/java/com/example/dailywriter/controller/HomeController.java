@@ -4,8 +4,11 @@ import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.exception.InvalidMessageRequestException;
 import com.example.dailywriter.form.MessageForm;
 import com.example.dailywriter.model.MessageType;
+import com.example.dailywriter.model.News;
 import com.example.dailywriter.model.Tone;
 import com.example.dailywriter.service.MessageService;
+import com.example.dailywriter.service.NewsService;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,21 +20,32 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class HomeController {
 
     private final MessageService messageService;
+    private final NewsService newsService;
 
-    public HomeController(MessageService messageService) {
+    public HomeController(
+            MessageService messageService,
+            NewsService newsService
+    ) {
         this.messageService = messageService;
+        this.newsService = newsService;
     }
 
     @GetMapping("/")
     public String index(Model model) {
 
-        if (!model.containsAttribute("selectedType")) {
-            model.addAttribute("selectedType", MessageType.START);
-        }
+        model.addAttribute(
+                "selectedType",
+                MessageType.START
+        );
 
-        if (!model.containsAttribute("selectedTone")) {
-            model.addAttribute("selectedTone", Tone.NORMAL.name());
-        }
+        model.addAttribute(
+                "selectedTone",
+                Tone.NORMAL
+        );
+
+        List<News> newsList = newsService.getLatestNews();
+
+        model.addAttribute("newsList", newsList);
 
         return "index";
     }

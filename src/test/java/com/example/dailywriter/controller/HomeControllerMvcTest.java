@@ -10,9 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,21 +27,25 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.model.MessageType;
+import com.example.dailywriter.model.News;
 import com.example.dailywriter.model.Tone;
 import com.example.dailywriter.service.MessageService;
+import com.example.dailywriter.service.NewsService;
 
 class HomeControllerMvcTest {
 
     private MessageService messageService;
-
+    private NewsService newsService;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
 
         messageService = mock(MessageService.class);
+        newsService = mock(NewsService.class);
 
-        HomeController controller = new HomeController(messageService);
+        HomeController controller =
+                new HomeController(messageService, newsService);
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
@@ -149,5 +156,25 @@ class HomeControllerMvcTest {
         assertEquals("Javaを学習した", request.workContent());
 
         assertEquals(Tone.POLITE, request.tone());
+    }
+
+    @Test
+    void getIndexAddsNewsListToModel() throws Exception {
+
+    List<News> newsList = List.of(
+            new News(
+                    "Javaのニュース",   
+                    "Javaに関する記事です。",
+                    "https://example.com/java"
+            )
+    );
+
+    when(newsService.getLatestNews())
+            .thenReturn(newsList);
+
+    mockMvc.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("index"))
+            .andExpect(model().attribute("newsList", newsList));
     }
 }
