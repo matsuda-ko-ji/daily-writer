@@ -100,9 +100,9 @@ class NewsServiceTest {
 
         when(builder.build()).thenReturn(restClient);
 
-        when(restClient.get()).thenReturn(
-                (RestClient.RequestHeadersUriSpec) uriSpec
-        );
+        doReturn(uriSpec)
+        .when(restClient)
+        .get();
 
         doReturn(headersSpec)
         .when(uriSpec)
