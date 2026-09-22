@@ -146,7 +146,7 @@ class NewsServiceTest {
         when(responseSpec.body(String.class))
                 .thenThrow(cause);
 
-        NewsService newsService = new NewsService(builder);
+        NewsService newsService = new NewsService(builder, new NewsXmlParser());
 
         // 独自例外が発生すること
         NewsFetchException exception = assertThrows(
@@ -203,7 +203,7 @@ class NewsServiceTest {
         when(responseSpec.body(String.class))
                 .thenReturn(responseXml);
 
-        return new NewsService(builder);
+        return new NewsService(builder, new NewsXmlParser());
     }
 
     /**

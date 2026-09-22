@@ -63,7 +63,7 @@ class NewsServiceHttpTest {
         );
 
         // ⑤ NewsServiceを作成
-        NewsService newsService = new NewsService(builder);
+        NewsService newsService = new NewsService(builder, new NewsXmlParser()  );
 
         // ⑥ ニュース取得処理を実行
         List<News> newsList = newsService.getLatestNews();
@@ -111,7 +111,7 @@ class NewsServiceHttpTest {
         .andRespond(withServerError());
 
         // ④ NewsServiceを作成
-        NewsService newsService = new NewsService(builder);
+        NewsService newsService = new NewsService(builder, new NewsXmlParser());
 
         // ⑤ 独自例外が発生することを確認
         NewsFetchException exception = assertThrows(
@@ -174,7 +174,7 @@ class NewsServiceHttpTest {
         );
 
         // ⑤ NewsServiceを作成
-        NewsService newsService = new NewsService(builder);
+        NewsService newsService = new NewsService(builder, new NewsXmlParser());
 
         // ⑥ 独自例外が発生することを確認
         NewsFetchException exception = assertThrows(
