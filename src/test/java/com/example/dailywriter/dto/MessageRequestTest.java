@@ -4,6 +4,9 @@ import com.example.dailywriter.exception.InvalidMessageRequestException;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.Tone;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -81,37 +84,6 @@ class MessageRequestTest {
     }
 
     @Test
-    void constructorRejectsEmptyReportContent() {
-
-        InvalidMessageRequestException exception = assertThrows(
-                InvalidMessageRequestException.class,
-                () -> new MessageRequest(
-                        MessageType.REPORT,
-                        "",
-                        Tone.NORMAL
-                )
-        );
-
-        assertEquals(
-                "今日やったことを入力してください。",
-                exception.getMessage()
-        );
-    }
-
-    @Test
-    void constructorRejectsBlankReportContent() {
-
-        assertThrows(
-                InvalidMessageRequestException.class,
-                () -> new MessageRequest(
-                        MessageType.REPORT,
-                        "   ",
-                        Tone.NORMAL
-                )
-        );
-    }
-
-    @Test
     void constructorRejectsNullReportContent() {
 
         assertThrows(
@@ -134,5 +106,48 @@ class MessageRequestTest {
         );
 
         assertEquals("", request.workContent());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "",
+            " ",
+            "   ",
+            "　",
+            "\t",
+            "\n",
+            " \t\n "
+    })
+    void constructorRejectsBlankReportContent(String workContent){
+        assertThrows(
+                InvalidMessageRequestException.class,
+                () -> new MessageRequest(
+                        MessageType.REPORT,
+                        workContent,
+                        Tone.NORMAL
+                )
+        );
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "' Javaを学習した ', 'Javaを学習した'",
+            "'　Javaを学習した　', 'Javaを学習した'",
+            "'\tJavaを学習した\t', 'Javaを学習した'"
+    })
+    void constructorStripsLeadingAndTrailingWhitespace(
+            String input,
+            String expected) {
+
+        MessageRequest request = new MessageRequest(
+                MessageType.REPORT,
+                input,
+                Tone.NORMAL
+        );
+
+        assertEquals(
+                expected,
+                request.workContent()
+        );
     }
 }
