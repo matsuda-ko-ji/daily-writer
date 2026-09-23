@@ -1,14 +1,12 @@
 package com.example.dailywriter.client;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.example.dailywriter.config.AiConfig;
 import com.example.dailywriter.dto.AiRequest;
 
-@Component
-public class AiClient {
+public class AiClient implements AiTextGenerator {
 
     private final RestClient restClient;
     private final AiConfig aiConfig;
@@ -27,6 +25,7 @@ public class AiClient {
         this.model = model;
     }
 
+    @Override
     public String generate(String prompt) {
 
         if (!aiConfig.isConfigured()) {
