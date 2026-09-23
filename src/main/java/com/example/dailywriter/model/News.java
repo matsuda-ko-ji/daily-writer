@@ -7,11 +7,13 @@ package com.example.dailywriter.model;
  * @param description 概要
  * @param url         記事URL
  * @param category    ニュースカテゴリ
+ * @param sourceName  ニュース取得元名
  */
 public record News(
         String title,
         String description,
         String url,
-        NewsCategory category
+        NewsCategory category,
+        String sourceName
 ) {
 }

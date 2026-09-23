@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,9 +19,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.mockito.ArgumentCaptor;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -44,23 +42,22 @@ class HomeControllerMvcTest {
     @BeforeEach
     void setUp() {
 
-    messageService = mock(MessageService.class);
+        messageService = mock(MessageService.class);
+        newsService = mock(NewsService.class);
 
-    newsService = mock(NewsService.class);
+        AiMessageService aiMessageService =
+                mock(AiMessageService.class);
 
-    AiMessageService aiMessageService =
-            mock(AiMessageService.class);
+        HomeController controller =
+                new HomeController(
+                        messageService,
+                        newsService,
+                        aiMessageService
+                );
 
-    HomeController controller =
-            new HomeController(
-                    messageService,
-                    newsService,
-                    aiMessageService
-            );
-
-    mockMvc = MockMvcBuilders
-            .standaloneSetup(controller)
-            .build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .build();
     }
 
     @Test
@@ -112,7 +109,7 @@ class HomeControllerMvcTest {
         ));
 
         verify(messageService, never())
-        .generate(any(MessageRequest.class));
+                .generate(any(MessageRequest.class));
     }
 
     @Test
@@ -162,68 +159,83 @@ class HomeControllerMvcTest {
         MessageRequest request = captor.getValue();
 
         // ⑥ 引数の中身を確認する
-        assertEquals(MessageType.REPORT, request.type());
+        assertEquals(
+                MessageType.REPORT,
+                request.type()
+        );
 
-        assertEquals("Javaを学習した", request.workContent());
+        assertEquals(
+                "Javaを学習した",
+                request.workContent()
+        );
 
-        assertEquals(Tone.POLITE, request.tone());
+        assertEquals(
+                Tone.POLITE,
+                request.tone()
+        );
     }
 
     @Test
     void getIndexAddsNewsListToModel() throws Exception {
 
-    List<News> newsList = List.of(
-            new News(
-                    "Javaのニュース",   
-                    "Javaに関する記事です。",
-                    "https://example.com/java",
-                    NewsCategory.TECHNOLOGY
+        News news = new News(
+                "テストニュース",
+                "テスト概要",
+                "https://example.com",
+                NewsCategory.TECHNOLOGY,
+                "テストニュース"
+        );
 
-            )
-    );
+        List<News> newsList =
+                List.of(news);
 
-    when(newsService.getLatestNews())
-            .thenReturn(newsList);
+        when(newsService.getLatestNews())
+                .thenReturn(newsList);
 
-    mockMvc.perform(get("/"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("index"))
-            .andExpect(model().attribute("newsList", newsList));
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"))
+                .andExpect(
+                        model().attribute(
+                                "newsList",
+                                newsList
+                        )
+                );
     }
 
     @Test
     void getIndexDisplaysPageWhenNewsFetchFails() throws Exception {
 
-    // ニュース取得失敗を再現
-    when(newsService.getLatestNews())
-            .thenThrow(
-                    new NewsFetchException("通信エラー")
-            );
+        // ニュース取得失敗を再現
+        when(newsService.getLatestNews())
+                .thenThrow(
+                        new NewsFetchException("通信エラー")
+                );
 
-    // トップ画面へアクセス
-    mockMvc.perform(get("/"))
+        // トップ画面へアクセス
+        mockMvc.perform(get("/"))
 
-            // 画面は正常に表示される
-            .andExpect(status().isOk())
+                // 画面は正常に表示される
+                .andExpect(status().isOk())
 
-            // index.htmlを表示する
-            .andExpect(view().name("index"))
+                // index.htmlを表示する
+                .andExpect(view().name("index"))
 
-            // ニュース一覧は空になる
-            .andExpect(
-                    model().attribute(
-                            "newsList",
-                            List.of()
-                    )
-            )
+                // ニュース一覧は空になる
+                .andExpect(
+                        model().attribute(
+                                "newsList",
+                                List.of()
+                        )
+                )
 
-            // エラーメッセージが設定される
-            .andExpect(
-                    model().attribute(
-                            "newsError",
-                            "ニュースを取得できませんでした。時間をおいて再度お試しください。"
-                    )
-            );
+                // エラーメッセージが設定される
+                .andExpect(
+                        model().attribute(
+                                "newsError",
+                                "ニュースを取得できませんでした。時間をおいて再度お試しください。"
+                        )
+                );
     }
 
     @Test

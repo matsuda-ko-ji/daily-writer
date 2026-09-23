@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
 import com.example.dailywriter.model.NewsCategory;
+import com.example.dailywriter.model.NewsSource;
 
 class NewsXmlParserTest {
 
@@ -34,7 +35,7 @@ class NewsXmlParserTest {
                 </rss>
                 """;
 
-        List<News> newsList = parser.parse(xml, NewsCategory.TECHNOLOGY);
+        List<News> newsList = parser.parse(xml, createNewsSource());
 
         assertEquals(1, newsList.size());
         assertEquals("Javaのニュース", newsList.get(0).title());
@@ -53,7 +54,7 @@ class NewsXmlParserTest {
 
         NewsFetchException exception = assertThrows(
                 NewsFetchException.class,
-                () -> parser.parse(xml, NewsCategory.TECHNOLOGY)
+                () -> parser.parse(xml, createNewsSource())
         );
 
         assertEquals(
@@ -83,7 +84,7 @@ class NewsXmlParserTest {
                 </rss>
                 """;
 
-        List<News> newsList = parser.parse(xml, NewsCategory.TECHNOLOGY);
+        List<News> newsList = parser.parse(xml, createNewsSource());
 
         assertEquals(5, newsList.size());
         assertEquals("ニュース1", newsList.get(0).title());
@@ -103,8 +104,22 @@ class NewsXmlParserTest {
                 </rss>
                 """;
 
-        List<News> newsList = parser.parse(xml, NewsCategory.TECHNOLOGY);
+        List<News> newsList = parser.parse(xml, createNewsSource());
 
         assertEquals(0, newsList.size());
+    }
+
+    /**
+     * テスト用のニュース取得元を作成する
+     *
+     * @return テスト用ニュース取得元
+     */
+    private NewsSource createNewsSource() {
+
+        return new NewsSource(
+                "テストITニュース",
+                "https://example.com/rss",
+                NewsCategory.TECHNOLOGY
+        );
     }
 }

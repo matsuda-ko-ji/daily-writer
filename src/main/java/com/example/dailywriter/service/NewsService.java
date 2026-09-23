@@ -90,7 +90,7 @@ public class NewsService {
 
             return newsXmlParser.parse(
                     xml,
-                    source.category()
+                    source
             );
 
         } catch (RestClientException e) {
