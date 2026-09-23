@@ -15,6 +15,8 @@ import org.springframework.web.client.RestClientException;
 
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
+import com.example.dailywriter.model.NewsCategory;
+import com.example.dailywriter.model.NewsSource;
 
 class NewsServiceTest {
 
@@ -146,7 +148,11 @@ class NewsServiceTest {
         when(responseSpec.body(String.class))
                 .thenThrow(cause);
 
-        NewsService newsService = new NewsService(builder, new NewsXmlParser());
+        NewsService newsService = new NewsService(
+                builder,
+                new NewsXmlParser(),
+                createNewsSourceProvider()
+        );
 
         // 独自例外が発生すること
         NewsFetchException exception = assertThrows(
@@ -203,7 +209,11 @@ class NewsServiceTest {
         when(responseSpec.body(String.class))
                 .thenReturn(responseXml);
 
-        return new NewsService(builder, new NewsXmlParser());
+        return new NewsService(
+                builder,
+                new NewsXmlParser(),
+                createNewsSourceProvider()
+        );
     }
 
     /**
@@ -302,5 +312,349 @@ class NewsServiceTest {
 
         assertEquals(5, newsList.size());
         assertEquals("ニュース5", newsList.get(4).title());
+    }
+
+    /**
+     * 指定したニュース取得元のURLとカテゴリが使用されること
+     */
+    @Test
+    void getNewsUsesSpecifiedSource() {
+
+        String xml = """
+                <rss version="2.0">
+                        <channel>
+                        <item>
+                                <title>ビジネスニュース</title>
+                                <description>ビジネスの記事です。</description>
+                                <link>https://example.com/business/article</link>
+                        </item>
+                        </channel>
+                </rss>
+                """;
+
+        String sourceUrl =
+                "https://example.com/business/rss";
+
+        NewsSource source = new NewsSource(
+                "テストビジネスニュース",
+                sourceUrl,
+                NewsCategory.BUSINESS
+        );
+
+        RestClient.Builder builder =
+                mock(RestClient.Builder.class);
+
+        RestClient restClient =
+                mock(RestClient.class);
+
+        RestClient.RequestHeadersUriSpec<?> uriSpec =
+                mock(RestClient.RequestHeadersUriSpec.class);
+
+        RestClient.RequestHeadersSpec<?> headersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec responseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        when(builder.build()).thenReturn(restClient);
+
+        doReturn(uriSpec)
+                .when(restClient)
+                .get();
+
+        doReturn(headersSpec)
+                .when(uriSpec)
+                .uri(sourceUrl);
+
+        when(headersSpec.retrieve())
+                .thenReturn(responseSpec);
+
+        when(responseSpec.body(String.class))
+                .thenReturn(xml);
+
+        NewsService newsService =
+                new NewsService(
+                        builder,
+                        new NewsXmlParser(),
+                        createNewsSourceProvider()
+                );
+
+        List<News> newsList =
+                newsService.getNews(source);
+
+        assertEquals(1, newsList.size());
+
+        News news = newsList.get(0);
+
+        assertEquals(
+                "ビジネスニュース",
+                news.title()
+        );
+
+        assertEquals(
+                NewsCategory.BUSINESS,
+                news.category()
+        );
+    }
+
+    /**
+     * テスト用のNewsSourceProviderを作成する
+     */
+    private NewsSourceProvider createNewsSourceProvider() {
+
+        NewsSourceProvider provider =
+                mock(NewsSourceProvider.class);
+
+        NewsSource source = new NewsSource(
+                "Hacker News",
+                "https://hnrss.org/frontpage",
+                NewsCategory.TECHNOLOGY
+        );
+
+        when(provider.getSources())
+                .thenReturn(List.of(source));
+
+        return provider;
+    }
+
+    /**
+     * 複数のニュース取得元からニュースを取得できること
+     */
+    @Test
+    void getLatestNewsReturnsNewsFromMultipleSources() {
+
+        String technologyXml = """
+                <rss version="2.0">
+                    <channel>
+                        <item>
+                            <title>ITニュース</title>
+                        </item>
+                    </channel>
+                </rss>
+                """;
+
+        String businessXml = """
+                <rss version="2.0">
+                    <channel>
+                        <item>
+                            <title>ビジネスニュース</title>
+                        </item>
+                    </channel>
+                </rss>
+                """;
+
+        NewsSource technologySource = new NewsSource(
+                "テストITニュース",
+                "https://example.com/technology/rss",
+                NewsCategory.TECHNOLOGY
+        );
+
+        NewsSource businessSource = new NewsSource(
+                "テストビジネスニュース",
+                "https://example.com/business/rss",
+                NewsCategory.BUSINESS
+        );
+
+        RestClient.Builder builder =
+                mock(RestClient.Builder.class);
+
+        RestClient restClient =
+                mock(RestClient.class);
+
+        RestClient.RequestHeadersUriSpec<?> uriSpec =
+                mock(RestClient.RequestHeadersUriSpec.class);
+
+        RestClient.RequestHeadersSpec<?> technologyHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.RequestHeadersSpec<?> businessHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec technologyResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        RestClient.ResponseSpec businessResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        when(builder.build())
+                .thenReturn(restClient);
+
+        doReturn(uriSpec)
+                .when(restClient)
+                .get();
+
+        doReturn(technologyHeadersSpec)
+                .when(uriSpec)
+                .uri(technologySource.url());
+
+        doReturn(businessHeadersSpec)
+                .when(uriSpec)
+                .uri(businessSource.url());
+
+        when(technologyHeadersSpec.retrieve())
+                .thenReturn(technologyResponseSpec);
+
+        when(businessHeadersSpec.retrieve())
+                .thenReturn(businessResponseSpec);
+
+        when(technologyResponseSpec.body(String.class))
+                .thenReturn(technologyXml);
+
+        when(businessResponseSpec.body(String.class))
+                .thenReturn(businessXml);
+
+        NewsSourceProvider provider =
+                mock(NewsSourceProvider.class);
+
+        when(provider.getSources())
+                .thenReturn(
+                        List.of(
+                                technologySource,
+                                businessSource
+                        )
+                );
+
+        NewsService newsService = new NewsService(
+                builder,
+                new NewsXmlParser(),
+                provider
+        );
+
+        List<News> newsList =
+                newsService.getLatestNews();
+
+        assertEquals(2, newsList.size());
+
+        assertEquals(
+                "ITニュース",
+                newsList.get(0).title()
+        );
+
+        assertEquals(
+                NewsCategory.TECHNOLOGY,
+                newsList.get(0).category()
+        );
+
+        assertEquals(
+                "ビジネスニュース",
+                newsList.get(1).title()
+        );
+
+        assertEquals(
+                NewsCategory.BUSINESS,
+                newsList.get(1).category()
+        );
+    }
+
+    /**
+     * 一部のニュース取得元で取得に失敗しても、
+     * 他の取得元のニュースを取得できること
+     */
+    @Test
+    void getLatestNewsContinuesWhenOneSourceFails() {
+
+        String successXml = """
+                <rss version="2.0">
+                    <channel>
+                        <item>
+                            <title>取得成功ニュース</title>
+                        </item>
+                    </channel>
+                </rss>
+                """;
+
+        NewsSource failedSource = new NewsSource(
+                "取得失敗ニュース",
+                "https://example.com/failed/rss",
+                NewsCategory.TECHNOLOGY
+        );
+
+        NewsSource successSource = new NewsSource(
+                "取得成功ニュース",
+                "https://example.com/success/rss",
+                NewsCategory.BUSINESS
+        );
+
+        RestClient.Builder builder =
+                mock(RestClient.Builder.class);
+
+        RestClient restClient =
+                mock(RestClient.class);
+
+        RestClient.RequestHeadersUriSpec<?> uriSpec =
+                mock(RestClient.RequestHeadersUriSpec.class);
+
+        RestClient.RequestHeadersSpec<?> failedHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.RequestHeadersSpec<?> successHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec failedResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        RestClient.ResponseSpec successResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        when(builder.build())
+                .thenReturn(restClient);
+
+        doReturn(uriSpec)
+                .when(restClient)
+                .get();
+
+        doReturn(failedHeadersSpec)
+                .when(uriSpec)
+                .uri(failedSource.url());
+
+        doReturn(successHeadersSpec)
+                .when(uriSpec)
+                .uri(successSource.url());
+
+        when(failedHeadersSpec.retrieve())
+                .thenReturn(failedResponseSpec);
+
+        when(successHeadersSpec.retrieve())
+                .thenReturn(successResponseSpec);
+
+        when(failedResponseSpec.body(String.class))
+                .thenThrow(
+                        new RestClientException("通信エラー")
+                );
+
+        when(successResponseSpec.body(String.class))
+                .thenReturn(successXml);
+
+        NewsSourceProvider provider =
+                mock(NewsSourceProvider.class);
+
+        when(provider.getSources())
+                .thenReturn(
+                        List.of(
+                                failedSource,
+                                successSource
+                        )
+                );
+
+        NewsService newsService = new NewsService(
+                builder,
+                new NewsXmlParser(),
+                provider
+        );
+
+        List<News> newsList =
+                newsService.getLatestNews();
+
+        assertEquals(1, newsList.size());
+
+        assertEquals(
+                "取得成功ニュース",
+                newsList.get(0).title()
+        );
+
+        assertEquals(
+                NewsCategory.BUSINESS,
+                newsList.get(0).category()
+        );
     }
 }

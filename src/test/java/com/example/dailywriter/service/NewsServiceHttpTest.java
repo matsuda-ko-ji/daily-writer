@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
@@ -20,6 +22,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
+import com.example.dailywriter.model.NewsCategory;
+import com.example.dailywriter.model.NewsSource;
 
 class NewsServiceHttpTest {
 
@@ -63,7 +67,11 @@ class NewsServiceHttpTest {
         );
 
         // ⑤ NewsServiceを作成
-        NewsService newsService = new NewsService(builder, new NewsXmlParser()  );
+        NewsService newsService = new NewsService(
+                builder,
+                new NewsXmlParser(),
+                createNewsSourceProvider()
+        );
 
         // ⑥ ニュース取得処理を実行
         List<News> newsList = newsService.getLatestNews();
@@ -111,7 +119,11 @@ class NewsServiceHttpTest {
         .andRespond(withServerError());
 
         // ④ NewsServiceを作成
-        NewsService newsService = new NewsService(builder, new NewsXmlParser());
+        NewsService newsService = new NewsService(
+                builder,
+                new NewsXmlParser(),
+                createNewsSourceProvider()
+        );
 
         // ⑤ 独自例外が発生することを確認
         NewsFetchException exception = assertThrows(
@@ -174,7 +186,11 @@ class NewsServiceHttpTest {
         );
 
         // ⑤ NewsServiceを作成
-        NewsService newsService = new NewsService(builder, new NewsXmlParser());
+        NewsService newsService = new NewsService(
+                    builder,
+                    new NewsXmlParser(),
+                    createNewsSourceProvider()
+            );
 
         // ⑥ 独自例外が発生することを確認
         NewsFetchException exception = assertThrows(
@@ -193,5 +209,25 @@ class NewsServiceHttpTest {
 
         // ⑨ 期待したHTTPリクエストが実行されたことを確認
         server.verify();
+    }
+
+    /**
+     * テスト用のNewsSourceProviderを作成する
+     */
+    private NewsSourceProvider createNewsSourceProvider() {
+
+    NewsSourceProvider provider =
+            mock(NewsSourceProvider.class);
+
+    NewsSource source = new NewsSource(
+            "Hacker News",
+            "https://hnrss.org/frontpage",
+            NewsCategory.TECHNOLOGY
+    );
+
+    when(provider.getSources())
+            .thenReturn(List.of(source));
+
+    return provider;
     }
 }

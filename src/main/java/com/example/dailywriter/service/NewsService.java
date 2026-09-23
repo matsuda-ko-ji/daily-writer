@@ -1,30 +1,36 @@
 package com.example.dailywriter.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
-import com.example.dailywriter.model.NewsCategory;
+import com.example.dailywriter.model.NewsSource;
 
 @Service
 public class NewsService {
 
-    private static final String NEWS_URL =
-            "https://hnrss.org/frontpage";
-
+    private static final Logger logger =
+            LoggerFactory.getLogger(NewsService.class);
+            
     private final RestClient restClient;
     private final NewsXmlParser newsXmlParser;
+    private final NewsSourceProvider newsSourceProvider;
 
     public NewsService(
-            RestClient.Builder restClientBuilder,
-            NewsXmlParser newsXmlParser
+        RestClient.Builder restClientBuilder,
+        NewsXmlParser newsXmlParser,
+        NewsSourceProvider newsSourceProvider
     ) {
         this.restClient = restClientBuilder.build();
         this.newsXmlParser = newsXmlParser;
+        this.newsSourceProvider = newsSourceProvider;
     }
 
     /**
@@ -34,10 +40,45 @@ public class NewsService {
      */
     public List<News> getLatestNews() {
 
+        List<News> newsList = new ArrayList<>();
+        NewsFetchException lastException = null;
+
+        for (NewsSource source : newsSourceProvider.getSources()) {
+
+            try {
+                newsList.addAll(getNews(source));
+            } catch (NewsFetchException e) {
+
+                logger.warn(
+                        "ニュースの取得に失敗しました。source={}, url={}",
+                        source.name(),
+                        source.url(),
+                        e
+                );
+
+                lastException = e;
+            }
+        }
+
+        if (newsList.isEmpty() && lastException != null) {
+            throw lastException;
+        }
+
+        return List.copyOf(newsList);
+    }
+
+    /**
+     * 指定したニュース取得元からニュースを取得する
+     *
+     * @param source ニュース取得元
+     * @return ニュース一覧
+     */
+    public List<News> getNews(NewsSource source) {
+
         try {
 
             String xml = restClient.get()
-                    .uri(NEWS_URL)
+                    .uri(source.url())
                     .retrieve()
                     .body(String.class);
 
@@ -49,7 +90,7 @@ public class NewsService {
 
             return newsXmlParser.parse(
                     xml,
-                    NewsCategory.TECHNOLOGY
+                    source.category()
             );
 
         } catch (RestClientException e) {
