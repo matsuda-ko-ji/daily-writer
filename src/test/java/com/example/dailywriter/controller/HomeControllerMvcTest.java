@@ -29,6 +29,7 @@ import com.example.dailywriter.dto.MessageRequest;
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.MessageType;
 import com.example.dailywriter.model.News;
+import com.example.dailywriter.model.NewsCategory;
 import com.example.dailywriter.model.Tone;
 import com.example.dailywriter.service.AiMessageService;
 import com.example.dailywriter.service.MessageService;
@@ -175,7 +176,9 @@ class HomeControllerMvcTest {
             new News(
                     "Javaのニュース",   
                     "Javaに関する記事です。",
-                    "https://example.com/java"
+                    "https://example.com/java",
+                    NewsCategory.TECHNOLOGY
+
             )
     );
 

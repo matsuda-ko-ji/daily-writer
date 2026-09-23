@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
+import com.example.dailywriter.model.NewsCategory;
 
 class NewsXmlParserTest {
 
@@ -33,12 +34,13 @@ class NewsXmlParserTest {
                 </rss>
                 """;
 
-        List<News> newsList = parser.parse(xml);
+        List<News> newsList = parser.parse(xml, NewsCategory.TECHNOLOGY);
 
         assertEquals(1, newsList.size());
         assertEquals("Javaのニュース", newsList.get(0).title());
         assertEquals("Javaの記事です。", newsList.get(0).description());
         assertEquals("https://example.com/java", newsList.get(0).url());
+        assertEquals(NewsCategory.TECHNOLOGY, newsList.get(0).category());
     }
 
     /**
@@ -51,7 +53,7 @@ class NewsXmlParserTest {
 
         NewsFetchException exception = assertThrows(
                 NewsFetchException.class,
-                () -> parser.parse(xml)
+                () -> parser.parse(xml, NewsCategory.TECHNOLOGY)
         );
 
         assertEquals(
@@ -81,11 +83,12 @@ class NewsXmlParserTest {
                 </rss>
                 """;
 
-        List<News> newsList = parser.parse(xml);
+        List<News> newsList = parser.parse(xml, NewsCategory.TECHNOLOGY);
 
         assertEquals(5, newsList.size());
         assertEquals("ニュース1", newsList.get(0).title());
         assertEquals("ニュース5", newsList.get(4).title());
+        assertEquals(NewsCategory.TECHNOLOGY, newsList.get(0).category());
     }
 
     /**
@@ -100,7 +103,7 @@ class NewsXmlParserTest {
                 </rss>
                 """;
 
-        List<News> newsList = parser.parse(xml);
+        List<News> newsList = parser.parse(xml, NewsCategory.TECHNOLOGY);
 
         assertEquals(0, newsList.size());
     }

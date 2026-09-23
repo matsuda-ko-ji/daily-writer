@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClientException;
 
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
+import com.example.dailywriter.model.NewsCategory;
 
 @Service
 public class NewsService {
@@ -46,7 +47,10 @@ public class NewsService {
                 );
             }
 
-            return newsXmlParser.parse(xml);
+            return newsXmlParser.parse(
+                    xml,
+                    NewsCategory.TECHNOLOGY
+            );
 
         } catch (RestClientException e) {
 

@@ -14,6 +14,7 @@ import org.xml.sax.InputSource;
 
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
+import com.example.dailywriter.model.NewsCategory;
 
 @Component
 public class NewsXmlParser {
@@ -23,7 +24,7 @@ public class NewsXmlParser {
     /**
      * XMLを解析してニュース一覧を取得する
      */
-    public List<News> parse(String xml) {
+    public List<News> parse(String xml, NewsCategory category) {
 
         try {
 
@@ -69,7 +70,7 @@ public class NewsXmlParser {
                 String link = getText(item, "link");
 
                 newsList.add(
-                        new News(title, description, link)
+                        new News(title, description, link, category)
                 );
             }
 
