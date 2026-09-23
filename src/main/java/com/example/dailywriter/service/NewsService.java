@@ -45,10 +45,20 @@ public class NewsService {
         List<News> newsList = new ArrayList<>();
         NewsFetchException lastException = null;
 
+        // 1つでも取得に成功したニュース取得元があるか
+        boolean anySourceSucceeded = false;
+
         for (NewsSource source : newsSourceProvider.getSources()) {
 
             try {
-                newsList.addAll(getNews(source));
+
+                List<News> sourceNews =
+                        getNews(source);
+
+                anySourceSucceeded = true;
+
+                newsList.addAll(sourceNews);
+
             } catch (NewsFetchException e) {
 
                 logger.warn(
@@ -62,7 +72,8 @@ public class NewsService {
             }
         }
 
-        if (newsList.isEmpty() && lastException != null) {
+        // すべての取得元で失敗した場合のみ例外を投げる
+        if (!anySourceSucceeded && lastException != null) {
             throw lastException;
         }
 

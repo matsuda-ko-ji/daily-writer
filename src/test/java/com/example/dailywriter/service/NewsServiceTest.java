@@ -788,6 +788,100 @@ class NewsServiceTest {
     }
 
     /**
+     * 一部の取得元が失敗しても、
+     * 別の取得元が正常に0件を返した場合は空の一覧を返すこと
+     */
+    @Test
+    void getLatestNewsReturnsEmptyListWhenOneSourceFailsAndAnotherReturnsNoNews() {
+
+        String emptyXml = """
+                <rss version="2.0">
+                    <channel>
+                    </channel>
+                </rss>
+                """;
+
+        RestClient.Builder builder =
+                mock(RestClient.Builder.class);
+
+        RestClient restClient =
+                mock(RestClient.class);
+
+        RestClient.RequestHeadersUriSpec<?> uriSpec =
+                mock(RestClient.RequestHeadersUriSpec.class);
+
+        RestClient.RequestHeadersSpec<?> failedHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.RequestHeadersSpec<?> successHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec successResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        NewsSource failedSource =
+                new NewsSource(
+                        "失敗ニュース",
+                        "https://example.com/failed",
+                        NewsCategory.GENERAL
+                );
+
+        NewsSource successSource =
+                new NewsSource(
+                        "正常ニュース",
+                        "https://example.com/success",
+                        NewsCategory.LIFESTYLE
+                );
+
+        NewsSourceProvider provider =
+                mock(NewsSourceProvider.class);
+
+        when(builder.build())
+                .thenReturn(restClient);
+
+        doReturn(uriSpec)
+                .when(restClient)
+                .get();
+
+        doReturn(failedHeadersSpec)
+                .when(uriSpec)
+                .uri(failedSource.url());
+
+        doReturn(successHeadersSpec)
+                .when(uriSpec)
+                .uri(successSource.url());
+
+        when(failedHeadersSpec.retrieve())
+                .thenThrow(new RestClientException("通信エラー"));
+
+        when(successHeadersSpec.retrieve())
+                .thenReturn(successResponseSpec);
+
+        when(successResponseSpec.body(String.class))
+                .thenReturn(emptyXml);
+
+        when(provider.getSources())
+                .thenReturn(
+                        List.of(
+                                failedSource,
+                                successSource
+                        )
+                );
+
+        NewsService newsService =
+                new NewsService(
+                        builder,
+                        new NewsXmlParser(),
+                        provider
+                );
+
+        List<News> newsList =
+                newsService.getLatestNews();
+
+        assertEquals(0, newsList.size());
+    }
+
+    /**
      * URLが設定されていないニュースは、
      * 重複として除外されないこと
      */
