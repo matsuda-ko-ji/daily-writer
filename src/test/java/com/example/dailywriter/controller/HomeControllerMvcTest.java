@@ -178,20 +178,22 @@ class HomeControllerMvcTest {
     @Test
     void getIndexAddsNewsListToModel() throws Exception {
 
+        // テスト用ニュース
         News news = new News(
-                "テストニュース",
-                "テスト概要",
-                "https://example.com",
+                "Javaの新機能",
+                "Javaに関するニュースです。",
+                "https://example.com/java",
                 NewsCategory.TECHNOLOGY,
-                "テストニュース"
+                "テストITニュース"
         );
 
-        List<News> newsList =
-                List.of(news);
+        List<News> newsList = List.of(news);
 
+        // ニュース取得処理をモック化
         when(newsService.getLatestNews())
                 .thenReturn(newsList);
 
+        // トップページへアクセス
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
@@ -201,6 +203,17 @@ class HomeControllerMvcTest {
                                 newsList
                         )
                 );
+
+        // モデルへ渡すニュースの情報を確認
+        assertEquals(
+                NewsCategory.TECHNOLOGY,
+                news.category()
+        );
+
+        assertEquals(
+                "テストITニュース",
+                news.sourceName()
+        );
     }
 
     @Test

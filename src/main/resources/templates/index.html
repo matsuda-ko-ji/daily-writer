@@ -102,7 +102,7 @@
     <hr>
 
     <section>
-        <h2>今日のITニュース</h2>
+        <h2>今日のニュース</h2>
 
         <!-- ニュース取得失敗時 -->
         <p th:if="${newsError != null}"
@@ -120,10 +120,25 @@
 
             <li th:each="news : ${newsList}">
 
+                <!-- ニュースタイトル -->
                 <h3 th:text="${news.title}">
                     ニュースタイトル
                 </h3>
 
+                <!-- カテゴリと取得元 -->
+                <p>
+                    <span th:text="${news.category.displayName}">
+                        カテゴリ
+                    </span>
+
+                    <span> ｜ </span>
+
+                    <span th:text="${news.sourceName}">
+                        ニュース取得元
+                    </span>
+                </p>
+
+                <!-- 元記事へのリンク -->
                 <a th:href="${news.url}"
                 target="_blank"
                 rel="noopener noreferrer">
