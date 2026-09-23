@@ -547,6 +547,135 @@ class NewsServiceTest {
     }
 
     /**
+     * 複数の取得元に同じURLのニュースが存在する場合、
+     * 重複を除いて1件だけ取得できること
+     */
+    @Test
+    void getLatestNewsRemovesDuplicateNewsByUrl() {
+
+        String technologyXml = """
+                <rss version="2.0">
+                        <channel>
+                        <item>
+                                <title>ITニュース</title>
+                                <description>ITニュースの記事です。</description>
+                                <link>https://example.com/same-news</link>
+                        </item>
+                        </channel>
+                </rss>
+                """;
+
+        String businessXml = """
+                <rss version="2.0">
+                        <channel>
+                        <item>
+                                <title>ビジネスニュース</title>
+                                <description>ビジネスニュースの記事です。</description>
+                                <link>https://example.com/same-news</link>
+                        </item>
+                        </channel>
+                </rss>
+                """;
+
+        NewsSource technologySource = new NewsSource(
+                "テストITニュース",
+                "https://example.com/technology/rss",
+                NewsCategory.TECHNOLOGY
+        );
+
+        NewsSource businessSource = new NewsSource(
+                "テストビジネスニュース",
+                "https://example.com/business/rss",
+                NewsCategory.BUSINESS
+        );
+
+        RestClient.Builder builder =
+                mock(RestClient.Builder.class);
+
+        RestClient restClient =
+                mock(RestClient.class);
+
+        RestClient.RequestHeadersUriSpec<?> uriSpec =
+                mock(RestClient.RequestHeadersUriSpec.class);
+
+        RestClient.RequestHeadersSpec<?> technologyHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.RequestHeadersSpec<?> businessHeadersSpec =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec technologyResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        RestClient.ResponseSpec businessResponseSpec =
+                mock(RestClient.ResponseSpec.class);
+
+        when(builder.build())
+                .thenReturn(restClient);
+
+        doReturn(uriSpec)
+                .when(restClient)
+                .get();
+
+        doReturn(technologyHeadersSpec)
+                .when(uriSpec)
+                .uri(technologySource.url());
+
+        doReturn(businessHeadersSpec)
+                .when(uriSpec)
+                .uri(businessSource.url());
+
+        when(technologyHeadersSpec.retrieve())
+                .thenReturn(technologyResponseSpec);
+
+        when(businessHeadersSpec.retrieve())
+                .thenReturn(businessResponseSpec);
+
+        when(technologyResponseSpec.body(String.class))
+                .thenReturn(technologyXml);
+
+        when(businessResponseSpec.body(String.class))
+                .thenReturn(businessXml);
+
+        NewsSourceProvider provider =
+                mock(NewsSourceProvider.class);
+
+        when(provider.getSources())
+                .thenReturn(
+                        List.of(
+                                technologySource,
+                                businessSource
+                        )
+                );
+
+        NewsService newsService = new NewsService(
+                builder,
+                new NewsXmlParser(),
+                provider
+        );
+
+        List<News> newsList =
+                newsService.getLatestNews();
+
+        assertEquals(1, newsList.size());
+
+        assertEquals(
+                "https://example.com/same-news",
+                newsList.get(0).url()
+        );
+
+        assertEquals(
+            "ITニュース",
+            newsList.get(0).title()
+    );
+
+    assertEquals(
+            "テストITニュース",
+            newsList.get(0).sourceName()
+    );
+    }
+
+    /**
      * 一部のニュース取得元で取得に失敗しても、
      * 他の取得元のニュースを取得できること
      */
@@ -655,6 +784,45 @@ class NewsServiceTest {
         assertEquals(
                 NewsCategory.BUSINESS,
                 newsList.get(0).category()
+        );
+    }
+
+    /**
+     * URLが設定されていないニュースは、
+     * 重複として除外されないこと
+     */
+    @Test
+    void getLatestNewsDoesNotRemoveNewsWithoutUrl() {
+
+        String xml = """
+                <rss version="2.0">
+                    <channel>
+                        <item>
+                            <title>ニュース1</title>
+                        </item>
+                        <item>
+                            <title>ニュース2</title>
+                        </item>
+                    </channel>
+                </rss>
+                """;
+
+        NewsService newsService =
+                createNewsService(xml);
+
+        List<News> newsList =
+                newsService.getLatestNews();
+
+        assertEquals(2, newsList.size());
+
+        assertEquals(
+                "ニュース1",
+                newsList.get(0).title()
+        );
+
+        assertEquals(
+                "ニュース2",
+                newsList.get(1).title()
         );
     }
 }

@@ -2,6 +2,8 @@ package com.example.dailywriter.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -64,7 +66,7 @@ public class NewsService {
             throw lastException;
         }
 
-        return List.copyOf(newsList);
+        return removeDuplicatesByUrl(newsList);
     }
 
     /**
@@ -100,5 +102,42 @@ public class NewsService {
                     e
             );
         }
+    }
+
+    /**
+     * URLが重複しているニュースを除外する
+     *
+     * URLが設定されていないニュースは
+     * 重複判定の対象外とする。
+     *
+     * @param newsList ニュース一覧
+     * @return 重複を除外したニュース一覧
+     */
+    private List<News> removeDuplicatesByUrl(
+            List<News> newsList
+    ) {
+
+        Map<String, News> newsByUrl =
+                new LinkedHashMap<>();
+
+        List<News> result =
+                new ArrayList<>();
+
+        for (News news : newsList) {
+
+            String url = news.url();
+
+            if (url == null || url.isBlank()) {
+                result.add(news);
+                continue;
+            }
+
+            if (!newsByUrl.containsKey(url)) {
+                newsByUrl.put(url, news);
+                result.add(news);
+            }
+        }
+
+        return List.copyOf(result);
     }
 }

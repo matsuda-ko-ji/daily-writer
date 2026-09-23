@@ -14,7 +14,6 @@ import org.xml.sax.InputSource;
 
 import com.example.dailywriter.exception.NewsFetchException;
 import com.example.dailywriter.model.News;
-import com.example.dailywriter.model.NewsCategory;
 import com.example.dailywriter.model.NewsSource;
 
 @Component
